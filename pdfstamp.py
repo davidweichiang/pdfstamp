@@ -5,31 +5,35 @@ import tempfile
 import os, os.path
 import subprocess
 import shutil
+import PyPDF2 as pdf
+import decimal
 
 template = string.Template(r"""\documentclass{article}
-\usepackage[$geometry]{geometry}
+\usepackage[paperwidth=${w}pt,paperheight=${h}pt]{geometry}
 \usepackage{pdfpages}
 \begin{document}
 \includepdf[pages=-,picturecommand={\put($x,$y){\makebox[0pt][c]{\tt\small $stamp}}}]{$inpdf}%
 \end{document}
 """)
 
-def pdfstamp(inpdf, outpdf, stamp, papersize="a4"):
-    papersize = papersize.lower()
-    if papersize == "a4":
-        width, height = 210/25.4*72.27, 297/25.4*72.27
-    elif args.papersize.lower() == "letter":
-        width, height = 8.5*72.27, 11*72.27
-    else:
-        raise ValueError("invalid paper size")
+def papersize(inpdf):
+    bbox = pdf.PdfFileReader(open(inpdf, 'rb')).getPage(0).mediaBox
+    x1, y1 = bbox.lowerLeft
+    x2, y2 = bbox.upperRight
+    bp_to_pt = decimal.Decimal(72.27) / decimal.Decimal(72)
+    w = (x2-x1) * bp_to_pt
+    h = (y2-y1) * bp_to_pt
+    return w, h
 
-    y = height - 24
-    x = width / 2
+def pdfstamp(inpdf, outpdf, stamp):
+    w, h = papersize(inpdf)
+    y = h - decimal.Decimal(24)
+    x = w / decimal.Decimal(2)
         
     with tempfile.TemporaryDirectory() as tmpdir:
         with open(os.path.join(tmpdir, "stamp.tex"), "w") as f:
             shutil.copy(inpdf, os.path.join(tmpdir, "paper.pdf"))
-            f.write(template.substitute(stamp=stamp, inpdf="paper.pdf", geometry=papersize+"paper", x=x, y=y))
+            f.write(template.substitute(stamp=stamp, inpdf="paper.pdf", w=w, h=h, x=x, y=y))
         subprocess.run(["/Library/TeX/texbin/pdflatex", "stamp.tex"], cwd=tmpdir)
         shutil.move(os.path.join(tmpdir, "stamp.pdf"), outpdf)
 
@@ -41,12 +45,6 @@ if __name__ == "__main__":
     parser.add_argument('--stamp', help="Stamp text to add")
     parser.add_argument('--infile', help="Input PDF file")
     parser.add_argument('--outfile', help="Output PDF file")
-    parser.add_argument('--papersize', help="Paper size (a4 or letter)", default="a4")
     args = parser.parse_args()
 
-    if args.papersize.lower() not in ["a4", "letter"]:
-        sys.stderr.write("Invalid paper size (must be a4 or letter)\n")
-        sys.exit(1)
-
-    pdfstamp(args.infile, args.outfile, args.stamp, args.papersize)
-
+    pdfstamp(args.infile, args.outfile, args.stamp)
