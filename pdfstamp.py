@@ -11,8 +11,9 @@ import decimal
 template = string.Template(r"""\documentclass{article}
 \usepackage[paperwidth=${w}pt,paperheight=${h}pt]{geometry}
 \usepackage{pdfpages}
+\font\stampfont=phvb at 8pt
 \begin{document}
-\includepdf[pages=-,picturecommand={\put($x,$y){\makebox[0pt][c]{\tt\small $stamp}}}]{$inpdf}%
+\includepdf[pages=-,picturecommand={\put($x,$y){\makebox[0pt][c]{\stampfont $stamp}}}]{$inpdf}%
 \end{document}
 """)
 
