@@ -7,11 +7,11 @@ Requires:
 
 Usage:
 
-    pdfstamp.py --stamp <text> --infile <filename> --outfile <filename>
+    pdfstamp.py --stamp <text> --infile <filename> --outfile <filename> --pdflatex <filename>
 
 where
 
-- `--stamp <text>`       specifies the text to write at the top of each page
-- `--infile <filename>`  specifies the PDF file to read
-- `--outfile <filename>` specifies the PDF file to write to
-
+- `--stamp <text>`        specifies the text to write at the top of each page
+- `--infile <filename>`   specifies the PDF file to read
+- `--outfile <filename>`  specifies the PDF file to write to
+- `--pdflatex <filename>` specifies location of pdfLaTeX (default `/usr/bin/pdflatex`)

@@ -25,7 +25,7 @@ def papersize(inpdf):
     h = (y2-y1) * bp_to_pt
     return w, h
 
-def pdfstamp(inpdf, outpdf, stamp):
+def pdfstamp(inpdf, outpdf, stamp, pdflatex):
     w, h = papersize(inpdf)
     y = h - decimal.Decimal(24)
     x = w / decimal.Decimal(2)
@@ -34,7 +34,7 @@ def pdfstamp(inpdf, outpdf, stamp):
         with open(os.path.join(tmpdir, "stamp.tex"), "w") as f:
             shutil.copy(inpdf, os.path.join(tmpdir, "paper.pdf"))
             f.write(template.substitute(stamp=stamp, inpdf="paper.pdf", w=w, h=h, x=x, y=y))
-        subprocess.run(["/Library/TeX/texbin/pdflatex", "stamp.tex"], cwd=tmpdir)
+        subprocess.run([pdflatex, "stamp.tex"], cwd=tmpdir)
         shutil.move(os.path.join(tmpdir, "stamp.pdf"), outpdf)
 
 if __name__ == "__main__":
@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument('--stamp', help="Stamp text to add")
     parser.add_argument('--infile', help="Input PDF file")
     parser.add_argument('--outfile', help="Output PDF file")
+    parser.add_argument('--pdflatex', help="Location of pdfLaTeX", default="/usr/bin/pdflatex")
     args = parser.parse_args()
 
-    pdfstamp(args.infile, args.outfile, args.stamp)
+    pdfstamp(args.infile, args.outfile, args.stamp, pdflatex=args.pdflatex)
