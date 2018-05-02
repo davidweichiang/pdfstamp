@@ -28,7 +28,7 @@ def papersize(inpdf):
 
 def pdfstamp(inpdf, outpdf, stamp, pdflatex):
     w, h = papersize(inpdf)
-    y = h - decimal.Decimal(24)
+    y = h - decimal.Decimal(42)
     x = w / decimal.Decimal(2)
         
     with tempfile.TemporaryDirectory() as tmpdir:
