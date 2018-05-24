@@ -42,12 +42,12 @@ def pdfstamp(inpdf, outpdf, stamp, pdflatex):
         stampreader = pdf.PdfFileReader(open(os.path.join(tmpdir, "stamp.pdf"), "rb"))
         reader = pdf.PdfFileReader(open(inpdf, "rb"))
         writer = pdf.PdfFileWriter()
-        #for i in range(reader.numPages):
-        for i in [0]:
-            page = stampreader.getPage(0)
-            content = reader.getPage(i)
-            page.mergePage(content)
+        for i in range(reader.numPages):
+            page = reader.getPage(i)
+            page.mergePage(stampreader.getPage(0))
             writer.addPage(page)
+        for dest in reader.namedDestinations.values():
+            writer.addNamedDestinationObject(dest)
         with open(outpdf, "wb") as outfile:
             writer.write(outfile)
 
